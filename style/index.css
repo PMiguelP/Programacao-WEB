@@ -49,9 +49,9 @@ button:hover {
     background-color: #0a5564;
 }
 
-.password-reset {
+.reset-password button{
     margin-top: 20px;
-    color: #007bff;
+    color: #cf1616;
     text-decoration: none;
     display: block;
 }
