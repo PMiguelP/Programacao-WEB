@@ -32,7 +32,7 @@
     <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#novaTarefaModal">+ Nova tarefa</button>
     <h2 class="text-center">As minhas tarefas</h2>
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table id="tabelaTarefas" class="table table-striped">
             <thead>
                 <tr>
                     <th>Data</th>
@@ -41,12 +41,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr data-toggle="modal" data-target="#editarTarefaModal" data-id="1">
                     <td>14-03-2024</td>
                     <td>Fazer o Lab 1 de PW</td>
                     <td><input type="checkbox" aria-label="Por Começar"></td>
                 </tr>
-                <tr>
+                <tr data-toggle="modal" data-target="#editarTarefaModal" data-id="2">
                     <td>27-03-2024</td>
                     <td>Fazer o Lab 2 de PW</td>
                     <td><input type="checkbox" aria-label="Por Começar"></td>
@@ -71,7 +71,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formNovaTarefa">
                     <div class="form-group">
                         <label for="dataTarefa">Data:</label>
                         <input type="text" class="form-control" id="dataTarefa">
@@ -84,7 +84,36 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary">Adicionar Tarefa</button>
+                <button type="button" class="btn btn-primary" id="btnAdicionarTarefa">Adicionar Tarefa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editarTarefaModal" tabindex="-1" role="dialog" aria-labelledby="editarTarefaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarTarefaModalLabel">Editar Tarefa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarTarefa">
+                    <div class="form-group">
+                        <label for="dataTarefaEdit">Data:</label>
+                        <input type="text" class="form-control" id="dataTarefaEdit">
+                    </div>
+                    <div class="form-group">
+                        <label for="descricaoTarefaEdit">Descrição:</label>
+                        <input type="text" class="form-control" id="descricaoTarefaEdit">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" id="btnEditarTarefa">Guardar Alterações</button>
             </div>
         </div>
     </div>
@@ -92,5 +121,63 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Adiciona uma nova tarefa à tabela ao clicar no botão "Adicionar Tarefa"
+    document.getElementById('btnAdicionarTarefa').addEventListener('click', function () {
+        var dataTarefa = $('#dataTarefa').val();
+        var descricaoTarefa = $('#descricaoTarefa').val();
+
+        // Cria uma nova linha na tabela com os dados da nova tarefa
+        var novaLinha = '<tr data-toggle="modal" data-target="#editarTarefaModal" data-id="3">' +
+            '<td>' + dataTarefa + '</td>' +
+            '<td>' + descricaoTarefa + '</td>' +
+            '<td><input type="checkbox" aria-label="Por Começar"></td>' +
+            '</tr>';
+
+        // Adiciona a nova linha à tabela
+        $('#tabelaTarefas tbody').append(novaLinha);
+
+        // Fecha a modal de adicionar tarefa
+        $('#novaTarefaModal').modal('hide');
+
+        // Limpa os campos da modal de adicionar tarefa
+        $('#dataTarefa').val('');
+        $('#descricaoTarefa').val('');
+    });
+
+    // Ao clicar em uma linha da tabela, preenche os campos da modal de edição com os dados da tarefa correspondente
+    $('#editarTarefaModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Botão que acionou o modal
+        var linha = button.closest('tr'); // Linha da tabela correspondente ao botão
+        var dataTarefa = linha.find('td:eq(0)').text(); // Conteúdo da primeira célula (data da tarefa)
+        var descricaoTarefa = linha.find('td:eq(1)').text(); // Conteúdo da segunda célula (descrição da tarefa)
+        
+        // Preenche os campos da modal com os dados da tarefa
+        $('#dataTarefaEdit').val(dataTarefa);
+        $('#descricaoTarefaEdit').val(descricaoTarefa);
+    });
+
+    // Ao clicar no botão "Guardar Alterações" na modal de edição, atualiza os dados da tarefa na tabela
+    document.getElementById('btnEditarTarefa').addEventListener('click', function () {
+        var dataTarefaEdit = document.getElementById('dataTarefaEdit').value;
+        var descricaoTarefaEdit = document.getElementById('descricaoTarefaEdit').value;
+
+        // Atualiza os dados da tarefa na tabela
+        var linha = $('#editarTarefaModal').data('linha'); // Obtém a linha da tabela correspondente à modal de edição
+        linha.find('td:eq(0)').text(dataTarefaEdit); // Atualiza a data da tarefa
+        linha.find('td:eq(1)').text(descricaoTarefaEdit); // Atualiza a descrição da tarefa
+
+        // Fecha a modal de edição
+        $('#editarTarefaModal').modal('hide');
+    });
+
+    // Ao clicar em uma linha da tabela, atribui a linha selecionada à modal de edição
+    $('#tabelaTarefas tr').click(function () {
+        var idTarefa = $(this).data('id');
+        $('#editarTarefaModal').data('linha', $(this));
+    });
+</script>
+
 </body>
 </html>
